@@ -1,0 +1,3 @@
+[submodule "LightKG"]
+	path = LightKG
+	url = https://github.com/henriquebkulkamp/LightKG.git
