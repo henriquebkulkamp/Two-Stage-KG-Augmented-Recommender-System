@@ -93,11 +93,17 @@ The candidate generation pipeline (embedding lookup → vector retrieval → met
    python app.py
    ```
 
+6. **Run Testing**
+
+   ```bash
+   python performance_testing.py
+   ```
+
 ## Performance
 
 | Metric | Value |
 |---|---|
-| Avg. warm-request latency (Reqs #2–#10) | **69.84 ms** |
+| Avg. warm-request latency (Reqs #2–#100) | **28.55 +- 4.05 ms** |
 
 ### LightKG standalone ranking quality (Amazon Luxury Beauty, @10)
 
