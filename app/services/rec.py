@@ -1,15 +1,20 @@
 from typing import List
 from fastapi import HTTPException
 from services import database, users
+# import time
 
 TOP_K = 50
 
 # Query otimizada: busca direto do índice HNSW por COSINE (sem REDUCE manual)
 MIPS_QUERY = """
-CALL db.index.vector.queryNodes('item_embeddings', $top_k, $vector)
-YIELD node AS item, score
-RETURN item.id AS itemId
+MATCH (item:Item)
+SEARCH item IN (
+  VECTOR INDEX item_embeddings
+  FOR $vector
+  LIMIT $top_k
+) SCORE as score
 ORDER BY score DESC
+RETURN collect(item.id) AS itemId
 """
 
 
@@ -39,7 +44,10 @@ def fetch_recommendations(vector: List[float], top_k: int = TOP_K) -> List[str]:
                 vector=vector,
                 top_k=top_k,
             )
-            return [record["itemId"] for record in result]
+            record = result.single()
+            items_id = record["itemId"] if record else []
+
+            return items_id
     except Exception as e:
         print("Erro:", e)
         raise HTTPException(
@@ -58,4 +66,5 @@ def get_recommendations_by_identifier(identifier: str, top_k: int = 10) -> List[
         List[str]: Recommended item IDs.
     """
     user_data = users.get_user_embedding_by_identifier(identifier)
+
     return fetch_recommendations(vector=user_data.embedding, top_k=top_k)
